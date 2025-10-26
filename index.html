@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Weather Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+      width: 90%;
+      max-width: 400px;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      outline: none;
+      text-align: center;
+      font-size: 1rem;
+    }
+    button {
+      background: #fff;
+      color: #0077ff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #0077ff;
+      color: #fff;
+    }
+    .weather {
+      margin-top: 20px;
+    }
+    .temp {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+    .desc {
+      font-size: 1.2rem;
+      text-transform: capitalize;
+    }
+    .icon img {
+      width: 80px;
+    }
+    .error {
+      margin-top: 20px;
+      color: #ffcccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌤️ Live Weather Dashboard</h1>
+    <input type="text" id="cityInput" placeholder="Enter city name" />
+    <button id="getWeatherBtn">Get Weather</button>
+    <div class="weather" id="weather"></div>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script>
+    const apiKey = 'eb74ab6bec547a02db405c71ffc47593'; 
+
+    document.getElementById('getWeatherBtn').addEventListener('click', fetchWeather);
+    document.getElementById('cityInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') fetchWeather();
+    });
+
+    async function fetchWeather() {
+      const city = document.getElementById('cityInput').value.trim();
+      const weatherDiv = document.getElementById('weather');
+      const errorDiv = document.getElementById('error');
+      weatherDiv.innerHTML = '';
+      errorDiv.innerHTML = '';
+
+      if (!city) {
+        errorDiv.textContent = 'Please enter a city name.';
+        return;
+      }
+
+      try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+        if (!response.ok) throw new Error('City not found');
+        const data = await response.json();
+
+        const icon = data.weather[0].icon;
+        const temp = Math.round(data.main.temp);
+        const desc = data.weather[0].description;
+        const cityName = data.name;
+
+        weatherDiv.innerHTML = `
+          <div class="icon"><img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}" /></div>
+          <div class="temp">${temp}°C</div>
+          <div class="desc">${desc}</div>
+          <div class="city">${cityName}</div>
+        `;
+      } catch (err) {
+        errorDiv.textContent = err.message;
+      }
+    }
+  </script>
+</body>
+</html>
